@@ -1,0 +1,4 @@
+# Customized settings for anope
+
+# Define nice level for anope
+#SERVICE_RUN_NICE_LEVEL="+0"

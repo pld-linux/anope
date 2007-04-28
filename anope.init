@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# anope	anope IRC Services
+#
+# chkconfig:	345 85 15
+# description:	anope is an IRC services daemon.
+#
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Get network config
+. /etc/sysconfig/network
+
+# Get service config
+[ -f /etc/sysconfig/anope ] && . /etc/sysconfig/anope
+
+# Check that networking is up.
+if is_yes "${NETWORKING}"; then
+	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
+		msg_network_down anope
+		exit 1
+	fi
+else
+	exit 0
+fi
+
+start() {
+	daemon --user anope anope
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+		touch /var/lock/subsys/anope
+	fi
+	return $RETVAL
+}
+
+stop() {
+	killproc --pidfile /var/run/anope.pid anope
+	rm -f /var/lock/subsys/anope >/dev/null 2>&1
+}
+
+reload() {
+	# sending INT signal will make anope close all listening sockets and
+	# wait for client connections to terminate.
+	killproc --pidfile /var/run/anope.pid anope -HUP
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+	# Check if the service is already running?
+	if [ ! -f /var/lock/subsys/anope ]; then
+		msg_starting anope
+		start
+	else
+		msg_already_running anope
+	fi
+	;;
+  stop)
+	# Stop daemons.
+	if [ -f /var/lock/subsys/anope ]; then
+		msg_stopping anope
+		stop
+	else
+		msg_not_running anope
+	fi
+	;;
+  status)
+	status anope
+	RETVAL=$?
+	;;
+  restart)
+	if [ -f /var/lock/subsys/anope ]; then
+		msg_stopping anope
+		stop
+		msg_starting anope
+		start
+		RETVAL=$?
+	else
+		msg_not_running anope
+		msg_starting anope
+		start
+	fi
+	;;
+  reload|graceful|force-reload)
+	if [ -f /var/lock/subsys/anope ]; then
+		msg_reloading anope
+		reload
+		RETVAL=$?
+	else
+		msg_not_running anope
+		RETVAL=7
+	fi
+	;;
+  flush-logs)
+	if [ -f /var/lock/subsys/anope ]; then
+		nls "Rotating %s logs" anope
+		killproc --pidfile /var/run/anope.pid anope -HUP
+		RETVAL=$?
+	else
+		msg_not_running anope
+		RETVAL=7
+	fi
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|flush-logs|status}"
+	exit 3
+	;;
+esac
+
+exit $RETVAL
