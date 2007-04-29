@@ -1,5 +1,5 @@
 Summary:	Internet Relay Chat Services
-Summary(pl.UTF-8):Usługi dla sieci IRC
+Summary(pl.UTF-8):	Usługi dla sieci IRC
 Name:		anope
 Version:	1.7.18
 Release:	1
@@ -9,8 +9,8 @@ Source0:	http://dl.sourceforge.net/anope/%{name}-%{version}.tar.gz
 # Source0-md5:	87b9e7a6a6129a9e9c8d07b135da4a4f
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
-Patch0:	%{name}-fhs.patch
-URL:		http://www.anope.org
+Patch0:		%{name}-fhs.patch
+URL:		http://www.anope.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	mysql-devel
